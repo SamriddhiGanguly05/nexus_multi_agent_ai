@@ -31,39 +31,7 @@ It reflects how modern AI systems are built in production — combining LLMs, to
 
 ## 🏗️ Architecture
 
-```
-User Input (text / file)
-        │
-        ▼
-   ┌─────────┐
-   │ Planner │  ← Reads available agents, creates ordered execution plan
-   └────┬────┘
-        │
-        ▼
-   ┌─────────────┐
-   │ Coordinator │  ← Pops next agent from plan, routes dynamically
-   └──────┬──────┘
-          │
-    ┌─────┴──────────────────────────────────┐
-    │                                        │
-    ▼                                        ▼
-┌──────────┐  ┌────────┐  ┌──────┐  ┌────────────┐  ┌──────────┐  ┌────────┐
-│ Research │  │  Tool  │  │ Code │  │   Review   │  │  Critic  │  │ Memory │
-└──────────┘  └────────┘  └──────┘  └────────────┘  └──────────┘  └────────┘
-    │              │          │            │                │            │
-    └──────────────┴──────────┴────────────┴────────────────┴────────────┘
-                                      │
-                                      ▼
-                              ┌────────────┐
-                              │ Summarizer │  ← Terminal node, saves session
-                              └────────────┘
-                                      │
-                                      ▼
-                              Context-Aware Chat
-```
-
----
-
+![System Architecture](./arch.png)
 ## 🤖 Agents
 
 | Agent | Role |
