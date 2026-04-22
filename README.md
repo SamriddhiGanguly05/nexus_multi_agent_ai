@@ -3,6 +3,17 @@
 A fully autonomous, multi-agent AI system built with **LangGraph**, **Groq (LLaMA 3)**, and **Flask**. Agents collaborate in a dynamic pipeline to plan, research, code, review, and summarize — with persistent chat history, CSV/Excel file analysis, and context-aware follow-up conversations.
 
 ---
+## 🎯 Why This Project Matters
+
+This project demonstrates **AI Engineering beyond model training**, focusing on:
+
+- **Multi-Agent Orchestration** using LangGraph  
+- **LLM System Design** (planning, routing, reasoning pipelines)  
+- **RAG-style workflows** with file-based contextual reasoning  
+- **Stateful AI systems** with persistent memory and session tracking  
+- **Production-oriented backend design** using Flask + SSE streaming  
+
+It reflects how modern AI systems are built in production — combining LLMs, tools, and backend infrastructure.
 
 ## ✨ Features
 
@@ -69,6 +80,14 @@ User Input (text / file)
 | **Chat Agent** | Answers follow-up questions using retained session context (no re-run) |
 
 ---
+
+## ⚙️ Key Engineering Highlights
+
+- Dynamic agent orchestration (no hardcoded workflows)
+- Streaming responses using Server-Sent Events (SSE)
+- Guardrails for hallucination (no fake links enforcement)
+- Code generation with length constraints and validation
+- Modular agent registry system for extensibility
 
 ## 📁 Project Structure
 
@@ -210,26 +229,7 @@ Or send as `multipart/form-data` with `task` + `file` fields.
 }
 ```
 
----
 
-## 🛡️ Design Decisions
-
-### No Fake Links
-The research agent has a **dual-layer** protection:
-1. **Prompt instruction** — explicitly forbids all URLs and domain names
-2. **Post-processor** — `sanitize_research_output()` strips any `http(s)://` that slips through using regex, and collapses markdown links `[text](url)` to just `text`
-
-### Concise Summaries
-The summarizer is constrained to **150–250 words** in exactly **4 sections**:
-- Executive Summary · Key Approach · Final Code Insight · Key Patterns
-
-If the LLM produces nested JSON instead of Markdown, `_flatten_dict_to_markdown()` converts it automatically.
-
-### Code Length Guard
-`enforce_code_length()` in `code_agent.py` truncates any generated code exceeding **150 lines** — shows head + tail with a clear truncation banner.
-
-### Session Persistence
-Sessions are stored in `sessions.json`. The chart base64 is excluded from saved sessions (too large) but summary and insights are retained for chat context.
 
 ---
 
