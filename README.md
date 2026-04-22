@@ -9,7 +9,7 @@ This project demonstrates **AI Engineering beyond model training**, focusing on:
 
 - **Multi-Agent Orchestration** using LangGraph  
 - **LLM System Design** (planning, routing, reasoning pipelines)  
-- **RAG-style workflows** with file-based contextual reasoning  
+- **MCP-style workflows** with file-based contextual reasoning  
 - **Stateful AI systems** with persistent memory and session tracking  
 - **Production-oriented backend design** using Flask + SSE streaming  
 
