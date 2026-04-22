@@ -1,0 +1,9 @@
+langgraph
+langchain-groq
+langchain-community
+langchain-mcp-adapters
+flask
+requests
+pandas
+matplotlib
+openpyxl

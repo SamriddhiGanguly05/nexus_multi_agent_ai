@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nexus Multi-Agent AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #080810;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 48px 20px 80px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .header p { color: #666; font-size: 14px; }
+
+    /* Input card */
+    .input-card {
+      background: #10101a;
+      border: 1px solid #1e1e30;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      background: #080810;
+      border: 1px solid #1e1e30;
+      border-radius: 10px;
+      color: #e0e0e0;
+      font-size: 14px;
+      padding: 14px 16px;
+      resize: none;
+      height: 80px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.5;
+    }
+    textarea:focus { border-color: #7c5cff; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-secondary {
+      background: #1a1a2e;
+      color: #aaa;
+      border: 1px solid #2a2a40;
+    }
+    .btn-secondary:hover { background: #20203a; color: #ddd; }
+    .btn-primary {
+      background: linear-gradient(135deg, #6c47ff, #ec4899);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Timeline */
+    #timeline { display: flex; flex-direction: column; gap: 10px; }
+
+    .step {
+      background: #10101a;
+      border: 1px solid #1e1e30;
+      border-radius: 12px;
+      padding: 14px 16px;
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .b-planner     { background: #1e1040; color: #a78bfa; border: 1px solid #3d2080; }
+    .b-coordinator { background: #0a1a0a; color: #6ee7b7; border: 1px solid #1a4030; }
+    .b-research    { background: #0a1a2e; color: #60a5fa; border: 1px solid #1a3a5e; }
+    .b-tool        { background: #1a1000; color: #fbbf24; border: 1px solid #3a2a00; }
+    .b-code        { background: #001a10; color: #34d399; border: 1px solid #004030; }
+    .b-review      { background: #1a0a00; color: #fb923c; border: 1px solid #3a1800; }
+    .b-critic      { background: #1a0010; color: #f472b6; border: 1px solid #3a0030; }
+    .b-memory      { background: #0a0a1a; color: #818cf8; border: 1px solid #20205a; }
+    .b-summarizer  { background: #001a1a; color: #2dd4bf; border: 1px solid #004040; }
+    .b-error       { background: #1a0000; color: #f87171; border: 1px solid #3a0000; }
+
+    .step-body { font-size: 13px; color: #999; line-height: 1.6; }
+
+    /* Plan pills */
+    .plan-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .plan-pill {
+      font-size: 11px;
+      padding: 3px 10px;
+      background: #1a1a2e;
+      color: #a78bfa;
+      border-radius: 20px;
+      border: 1px solid #2a2a50;
+    }
+    .plan-pill.active {
+      background: #2d1a50;
+      color: #c4b5fd;
+      border-color: #6c47ff;
+    }
+
+    /* Code / output blocks */
+    pre {
+      background: #080810;
+      border: 1px solid #1e1e30;
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      color: #ccc;
+      margin-top: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    /* Final output */
+    .final-card {
+      background: #050f0a;
+      border: 1px solid #0a3020;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 8px;
+    }
+    .final-card h3 {
+      color: #2dd4bf;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .final-content {
+      font-size: 13px;
+      color: #ccc;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Coordinator info */
+    .coord-info {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .coord-badge {
+      font-size: 11px;
+      color: #6ee7b7;
+      background: #0a1a14;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid #1a4030;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 11px; height: 11px;
+      border: 2px solid #333;
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-box {
+      background: #100505;
+      border: 1px solid #3a0000;
+      border-radius: 10px;
+      padding: 14px;
+      color: #f87171;
+      font-size: 13px;
+    }
+    .error-box strong { display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Nexus Multi-Agent AI</h1>
+      <p>Your intelligent autonomous team — plan, research, code, review, and execute.</p>
+    </div>
+
+    <div class="input-card">
+      <textarea id="task" placeholder="Describe your task... e.g. Build an end-to-end system to predict cryptocurrency pump-and-dump schemes using real-time Twitter and price data"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
+        <button class="btn btn-primary" id="runBtn" onclick="runTask()">Initialize Agents</button>
+      </div>
+    </div>
+
+    <div id="timeline"></div>
+  </div>
+
+  <script>
+    const BADGE_MAP = {
+      planner: "b-planner",
+      coordinator: "b-coordinator",
+      research: "b-research",
+      tool: "b-tool",
+      code: "b-code",
+      review: "b-review",
+      critic: "b-critic",
+      memory: "b-memory",
+      summarizer: "b-summarizer",
+      error: "b-error"
+    };
+
+    function badgeClass(node) {
+      return BADGE_MAP[node] || "b-planner";
+    }
+
+    function clearOutput() {
+      document.getElementById("timeline").innerHTML = "";
+      document.getElementById("task").value = "";
+    }
+
+    function renderStep(node, data) {
+      const timeline = document.getElementById("timeline");
+      const div = document.createElement("div");
+      div.className = "step";
+
+      let body = "";
+
+      if (node === "planner" && data.plan) {
+        const pills = data.plan.map((p, i) =>
+          `<span class="plan-pill ${i === 0 ? 'active' : ''}">${p}</span>`
+        ).join("");
+        body = `<div style="color:#888;font-size:12px;margin-bottom:6px;">Execution plan (${data.plan.length} steps)</div>
+                <div class="plan-row">${pills}</div>`;
+
+      } else if (node === "coordinator") {
+        body = `<div class="coord-info">
+          <span class="coord-badge">→ Next: ${data.next_agent || "END"}</span>
+          ${(data.remaining_plan || []).map(p => `<span class="coord-badge" style="opacity:0.6">${p}</span>`).join("")}
+        </div>`;
+
+      } else if (node === "summarizer" && data.final_output) {
+        body = `<div class="final-card">
+          <h3>Final Output</h3>
+          <div class="final-content">${escapeHtml(data.final_output)}</div>
+        </div>`;
+
+      } else if (node === "error") {
+        body = `<div class="error-box">
+          <strong>Error occurred:</strong>
+          ${escapeHtml(data.message || "Unknown error")}
+          ${data.trace ? `<pre style="margin-top:8px;color:#f87171">${escapeHtml(data.trace)}</pre>` : ""}
+        </div>`;
+
+      } else {
+        const msg = data.message || "";
+        const out = data.output || "";
+        body = `${msg ? `<div style="color:#888;margin-bottom:6px">${escapeHtml(msg)}</div>` : ""}
+                ${out ? `<pre>${escapeHtml(out)}</pre>` : ""}`;
+      }
+
+      div.innerHTML = `
+        <div class="step-header">
+          <span class="badge ${badgeClass(node)}">${node}</span>
+          ${node === "summarizer" ? '<span style="font-size:11px;color:#2dd4bf">✓ Complete</span>' : ""}
+        </div>
+        <div class="step-body">${body}</div>
+      `;
+
+      timeline.appendChild(div);
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function runTask() {
+      const task = document.getElementById("task").value.trim();
+      if (!task) {
+        document.getElementById("task").focus();
+        return;
+      }
+
+      document.getElementById("timeline").innerHTML = "";
+      const btn = document.getElementById("runBtn");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Running...';
+
+      fetch("/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task })
+      }).then(res => {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        function read() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              btn.disabled = false;
+              btn.innerHTML = "Initialize Agents";
+              return;
+            }
+            const text = decoder.decode(value);
+            const lines = text.split("\n").filter(l => l.startsWith("data:"));
+            lines.forEach(line => {
+              try {
+                const payload = JSON.parse(line.slice(5).trim());
+                renderStep(payload.node, payload.data || {});
+              } catch (e) {
+                console.warn("Parse error:", e, line);
+              }
+            });
+            read();
+          }).catch(err => {
+            renderStep("error", { message: err.toString() });
+            btn.disabled = false;
+            btn.innerHTML = "Initialize Agents";
+          });
+        }
+        read();
+      }).catch(err => {
+        renderStep("error", { message: err.toString() });
+        btn.disabled = false;
+        btn.innerHTML = "Initialize Agents";
+      });
+    }
+
+    document.getElementById("task").addEventListener("keydown", e => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        runTask();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+langgraph
+langchain-groq
+langchain-community
+langchain-mcp-adapters
+flask
+requests
+python-dotenv
